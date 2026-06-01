@@ -1,0 +1,1 @@
+kustomize build kthcloud | kubectl delete -f -

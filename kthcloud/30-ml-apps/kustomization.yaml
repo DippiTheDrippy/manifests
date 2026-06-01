@@ -1,0 +1,17 @@
+# kthcloud/30-ml-apps/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  # Kubeflow Pipelines (workflow orchestration).
+  - ../../applications/pipeline/overlays
+
+  # Hyperparameter tuning and experiment management.
+  - ../../applications/katib/upstream/installs/katib-with-kubeflow
+
+  # Training Operator v2.
+  # Handles distributed ML training workloads.
+  - ../../applications/trainer/overlays
+
+  # Spark Operator for Spark jobs and Spark ML workloads.
+  # - ../../applications/spark/spark-operator/overlays/kubeflow

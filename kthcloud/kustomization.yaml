@@ -1,0 +1,10 @@
+# kthcloud/kustomization.yaml
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - 00-foundation
+  - 10-auth-networking
+  - 20-kubeflow-core
+  - 30-ml-apps

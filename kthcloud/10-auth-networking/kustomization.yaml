@@ -1,0 +1,13 @@
+# kthcloud/10-auth-networking/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  # Oauth2-proxy & Dex
+  - ../../common/oauth2-proxy/overlays/m2m-dex-only
+  - ../../common/dex/overlays/oauth2-proxy
+
+  # KNative & Gateways
+  - ../../common/knative/knative-serving/overlays/gateways
+  - ../../common/istio/cluster-local-gateway/base
+  - ../../common/istio/kubeflow-istio-resources/base
