@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 
-if [ -f ".env" ]; then
+if [ -f "kthcloud/setup/.env" ]; then
   set -a
-  source .env
+  source kthcloud/setup/.env
   set +a
 fi
 
-tee ../common/dex/overlays/oauth2-proxy/config-map.yaml <<- DEX_CONFIG
+cp kthcloud/setup/.env common/dex/base/secret_params.env
+
+tee common/dex/overlays/oauth2-proxy/config-map.yaml <<- DEX_CONFIG
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -41,16 +43,16 @@ data:
       id: keycloak
       name: keycloak
       config:
-        issuer: $KEYCLOAK_ISSUER
+        issuer: __KEYCLOAK_ISSUER__
 
         # Override JWKS endpoint: Dex will fetch Keycloak's JWKs from here.
         # This is useful when issuer discovery fails or when the IdP uses
         # self-signed / internal-only certificates.
         # Keycloak's endpoint /realms/{realm}/protocol/openid-connect/certs. See the Keycloak documentation here https://www.keycloak.org/docs/latest/securing_apps/index.html#certificate-endpoint
-        jwksUri: $KEYCLOAK_JWKS_URI
-        clientID: $CLIENT_ID
-        clientSecret: $CLIENT_SECRET
-        redirectURI: $REDIRECT_URI
+        jwksUri: __KEYCLOAK_JWKS_URI__
+        clientID: __KEYCLOAK_CLIENT_ID__
+        clientSecret: __KEYCLOAK_CLIENT_SECRET__
+        redirectURI: __REDIRECT_URI__
         insecureSkipVerify: true 
         # Disable TLS certificate verification when connecting to the issuer.
         # This is required for test or on-premises installations using self-signed
@@ -64,20 +66,17 @@ data:
           - openid
           - profile
           - email
-          - offline_access
 DEX_CONFIG
 
-kustomize build ../common/dex/overlays/oauth2-proxy | kubectl delete -f -
-kustomize build ../common/dex/overlays/oauth2-proxy | kubectl apply -f -
+# kustomize build ../common/dex/overlays/oauth2-proxy | kubectl delete -f -
+# kustomize build ../common/dex/overlays/oauth2-proxy | kubectl apply -f -
 
 
-sleep 10
 
-
-tee ../common/oauth2-proxy/base/oauth2_proxy.cfg <<- OAUTH2_PROXY_CONFIG
+tee common/oauth2-proxy/base/oauth2_proxy.cfg <<- OAUTH2_PROXY_CONFIG
 provider = "oidc"
 oidc_issuer_url = "$DEX_ISSUER"
-scope = "profile email offline_access openid"
+scope = "profile email openid"
 email_domains = "*"
 insecure_oidc_allow_unverified_email = "true"
 
@@ -121,14 +120,13 @@ relative_redirect_url = true
 OAUTH2_PROXY_CONFIG
 
 
-kustomize build ../common/oauth2-proxy/overlays/m2m-dex-only/ | kubectl delete -f -
-kustomize build ../common/oauth2-proxy/overlays/m2m-dex-only/ | kubectl apply -f -
+# kustomize build ../common/oauth2-proxy/overlays/m2m-dex-only/ | kubectl delete -f -
+# kustomize build ../common/oauth2-proxy/overlays/m2m-dex-only/ | kubectl apply -f -
 
 
-sleep 10
 
 
-tee ../common/oauth2-proxy/components/istio-external-auth/requestauthentication.dex-jwt.yaml <<- ISTIO_REQUEST_AUTH_CONFIG
+tee common/oauth2-proxy/components/istio-external-auth/requestauthentication.dex-jwt.yaml <<- ISTIO_REQUEST_AUTH_CONFIG
 apiVersion: security.istio.io/v1beta1
 kind: RequestAuthentication
 metadata:
@@ -140,6 +138,7 @@ spec:
       app: istio-ingressgateway
   jwtRules:
   - issuer: $DEX_ISSUER
+    jwksUri: http://dex.auth.svc.cluster.local:5556/dex/keys
     forwardOriginalToken: true
     outputClaimToHeaders:
     - header: kubeflow-userid
@@ -151,7 +150,7 @@ spec:
       prefix: "Bearer "
 ISTIO_REQUEST_AUTH_CONFIG
 
-kustomize build ../common/istio/istio-install/overlays/oauth2-proxy | kubectl delete -f -
-kustomize build ../common/istio/istio-install/overlays/oauth2-proxy | kubectl apply -f -
-kustomize build ../common/oauth2-proxy/overlays/m2m-dex-only/ | kubectl delete -f -
-kustomize build ../common/oauth2-proxy/overlays/m2m-dex-only/ | kubectl apply -f -
+# kustomize build ../common/istio/istio-install/overlays/oauth2-proxy | kubectl delete -f -
+# kustomize build ../common/istio/istio-install/overlays/oauth2-proxy | kubectl apply -f -
+# kustomize build ../common/oauth2-proxy/overlays/m2m-dex-only/ | kubectl delete -f -
+# kustomize build ../common/oauth2-proxy/overlays/m2m-dex-only/ | kubectl apply -f -
