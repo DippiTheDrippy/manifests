@@ -10,4 +10,12 @@ resources:
   # KNative & Gateways
   - ../../common/knative/knative-serving/overlays/gateways
   - ../../common/istio/cluster-local-gateway/base
+
+  # Base Namespaces & Policies
+  - ../../common/kubeflow-namespace/base
+  #- ../../common/user-namespace/base
+  #- ../../common/networkpolicies/base
+
+  # Core RBAC and Istio routing for Kubeflow
+  - ../../common/kubeflow-roles/base
   - ../../common/istio/kubeflow-istio-resources/base

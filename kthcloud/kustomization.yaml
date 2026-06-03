@@ -6,5 +6,4 @@ kind: Kustomization
 resources:
   - 00-foundation
   - 10-auth-networking
-  - 20-kubeflow-core
-  - 30-ml-apps
+  - 20-ml-platform
