@@ -41,3 +41,20 @@ resources:
   - ../../common/istio/istio-crds/base
   - ../../common/istio/istio-namespace/base
   - ../../common/istio/istio-install/overlays/oauth2-proxy
+
+  # Oauth2-proxy & Dex
+  - ../../common/oauth2-proxy/overlays/m2m-dex-only
+  - ../../common/dex/overlays/oauth2-proxy
+
+  # KNative & Gateways
+  - ../../common/knative/knative-serving/overlays/gateways
+  - ../../common/istio/cluster-local-gateway/base
+
+  # Core RBAC and Istio routing for Kubeflow
+  - ../../common/kubeflow-roles/base
+  - ../../common/istio/kubeflow-istio-resources/base
+
+  # Base Namespaces & Policies
+  - ../../common/kubeflow-namespace/base
+  #- ../../common/user-namespace/base
+  #- ../../common/networkpolicies/base

@@ -5,5 +5,4 @@ kind: Kustomization
 
 resources:
   - 00-foundation
-  - 10-auth-networking
-  - 20-ml-platform
+  - 10-ml-platform
