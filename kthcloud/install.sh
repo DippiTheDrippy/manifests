@@ -3,6 +3,9 @@ set -euo pipefail
 
 LAYERS=(
   "kthcloud"
+  # "kthcloud/00-foundation"
+  # "kthcloud/10-auth-networking"
+  # "kthcloud/20-ml-platform"
 )
 
 for layer in "${LAYERS[@]}"; do
